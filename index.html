@@ -676,6 +676,16 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
 <div class="tip" id="tip"></div>
 <script>
 "use strict";
+window.addEventListener("error", function(e){
+  if(document.getElementById("bootErr")) return;
+  var d = document.createElement("div");
+  d.id = "bootErr";
+  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:999;background:#2a1512;"+
+    "border-top:1px solid #5e2a22;color:#ffb4ac;padding:10px 14px;font:12px/1.5 ui-monospace,monospace";
+  d.textContent = "Script error — the page will not work until this is fixed: " +
+    (e.message || e.error) + (e.lineno ? "  (line " + e.lineno + ")" : "");
+  (document.body || document.documentElement).appendChild(d);
+});
 /* ---------- tiny storage wrapper (degrades to memory) ---------- */
 const mem = {};
 const store = {
@@ -964,7 +974,6 @@ const netErr = e => /Failed to fetch|NetworkError|Load failed/i.test(e.message)
   ? "blocked by CORS — run fetch_data.py and serve the folder" : e.message;
 
 /* ---------- local files written by fetch_data.py ---------- */
-S.local = null; S.localOpt = null;
 async function loadLocal(quiet){
   const msg = $("#pxMsg");
   if(!quiet) msg.innerHTML = '<div class="busy">Reading data/prices.json…</div>';
@@ -1221,7 +1230,8 @@ let CITIES = store.get("ng_cities", null) || DEFAULT_CITIES.map(c => Object.assi
 
 const S = { stor:[], regions:{}, prod:[], cons:{}, trade:{}, spot:[], futs:{},
             steo:{}, wxFc:[], wxNorm:null, fit:null, fv:null, wxCity:[],
-            o:{}, ofv:null, cotAll:null, deskScores:null };
+            o:{}, ofv:null, cotAll:null, deskScores:null,
+            local:null, localOpt:null, px:{}, pxSrc:{}, pxIsEtf:{} };
 
 $$(".tab").forEach(b => b.addEventListener("click", () => {
   $$(".tab").forEach(x => x.setAttribute("aria-selected", x===b));
@@ -3443,9 +3453,6 @@ const PX_SYM = {
   HO:{ stooq:"ho.f", yahoo:"HO=F", etf:null,  etfName:null },
   RB:{ stooq:"rb.f", yahoo:"RB=F", etf:"UGA", etfName:"United States Gasoline Fund" }
 };
-S.px = {};            /* k -> [{d,o,h,l,c,v}] */
-S.pxSrc = {};         /* k -> source label */
-S.pxIsEtf = {};       /* k -> true when the series is an ETF proxy */
 
 
 
