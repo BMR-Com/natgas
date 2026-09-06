@@ -598,10 +598,12 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
       <span class="right">
         <select id="opTk" class="btn sm" style="padding:4px 8px">
           <option value="UNG">UNG — natural gas</option>
-          <option value="USO">USO — crude oil</option>
-          <option value="UGA">UGA — gasoline</option>
-          <option value="BNO">BNO — Brent</option>
           <option value="BOIL">BOIL — 2x gas</option>
+          <option value="KOLD">KOLD — −2x gas</option>
+          <option value="USO">USO — crude oil</option>
+          <option value="USL">USL — 12-month oil</option>
+          <option value="BNO">BNO — Brent</option>
+          <option value="UGA">UGA — gasoline</option>
           <option value="XLE">XLE — energy sector</option>
           <option value="XOP">XOP — E&amp;P</option>
           <option value="OIH">OIH — services</option>
@@ -991,7 +993,9 @@ async function loadLocal(quiet){
     S.localOpt = j; okO = true;
     const ks = Object.keys(j.chains||{});
     note.push("<b>Options:</b> "+ks.length+" chains ("+ks.join(", ")+"), generated "+(j.generated||"—"));
+    const keepTk = $("#opTk").value;
     $("#opTk").innerHTML = ks.map(k=>'<option value="'+k+'">'+k+'</option>').join("");
+    if(ks.includes(keepTk)) $("#opTk").value = keepTk;
   } catch(e){ note.push("<b>Options:</b> data/options.json not found"); }
 
   if(!quiet) msg.innerHTML = (okP||okO ? '<div class="ok">Loaded local data.</div>' : '<div class="err">No local files yet.</div>') +
@@ -3889,7 +3893,8 @@ $("#cotLook").addEventListener("change", () => { drawCotMatrix(); drawCotDetail(
 $("#cotPick").addEventListener("change", drawCotDetail);
 $("#tkPick").addEventListener("change", loadSymbol);
 ["#tkCandle","#tkMA","#tkBB","#tkVol","#tkRSI","#tkMACD","#tkMOM"].forEach(id=>$(id).addEventListener("change", drawTech));
-$("#opGo").addEventListener("click", () => loadLocal(false));
+$("#opGo").addEventListener("click", () => { (S.localOpt && S.localOpt.chains) ? drawEtfOptions() : loadLocal(false); });
+$("#opTk").addEventListener("change", () => { $("#opExp").value = "all"; drawEtfOptions(); });
 $("#opExp").addEventListener("change", drawEtfOptions);
 $("#pxGo").addEventListener("click", loadPrices);
 
