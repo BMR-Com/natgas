@@ -233,9 +233,12 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
           <option value="kh3c-gbw2">Disaggregated, futures + options</option>
         </select>
         <select id="cotLook" class="btn sm" style="padding:4px 8px">
+          <option value="26">26-week window</option>
           <option value="52">52-week window</option>
           <option value="156" selected>3-year window</option>
           <option value="260">5-year window</option>
+          <option value="520">10-year window</option>
+          <option value="99999">Entire history</option>
         </select>
         <button class="btn go" id="loadCot">Load COT</button>
       </span>
@@ -537,6 +540,9 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
         </select>
         <label class="tgl"><input type="checkbox" id="tkCandle" checked> candles</label>
         <label class="tgl"><input type="checkbox" id="tkMA" checked> MA</label>
+        <input type="number" id="tkMA1" class="btn sm" value="20"  min="2" max="400" title="fast MA period" style="width:46px;padding:4px 4px">
+        <input type="number" id="tkMA2" class="btn sm" value="50"  min="2" max="400" title="mid MA period"  style="width:46px;padding:4px 4px">
+        <input type="number" id="tkMA3" class="btn sm" value="200" min="2" max="400" title="slow MA period" style="width:50px;padding:4px 4px">
         <label class="tgl"><input type="checkbox" id="tkBB" checked> BB</label>
         <label class="tgl"><input type="checkbox" id="tkVol" checked> vol</label>
         <label class="tgl"><input type="checkbox" id="tkRSI" checked> RSI</label>
@@ -2415,13 +2421,16 @@ function fitOilFV(){
 /* ==========================================================================
    COT DESK — the four traded contracts, in depth
    ========================================================================== */
+/* CFTC market codes — the four physical NYMEX benchmarks. Matching by code, not
+   name: CFTC carries several look-alike crude/gas/gasoline contracts and the
+   name filter was picking the wrong one (e.g. 067411 "CRUDE OIL, LIGHT SWEET-WTI"
+   instead of 067651 "WTI-PHYSICAL"). */
 const TRADED = [
-  { k:"NG", label:"Henry Hub natural gas", re:/NAT.?GAS.*NYME|NATURAL GAS.*NEW YORK MERC/i },
-  { k:"CL", label:"WTI crude oil",         re:/CRUDE OIL, LIGHT SWEET|WTI-PHYSICAL|CRUDE OIL.*NYME/i },
-  { k:"HO", label:"NY Harbor ULSD",        re:/ULSD|#2 HEATING OIL|NO\.? ?2 HEATING/i },
-  { k:"RB", label:"RBOB gasoline",         re:/RBOB|GASOLINE BLENDSTOCK/i }
+  { k:"NG", label:"Henry Hub natural gas", code:"023651" },  /* NAT GAS NYME */
+  { k:"CL", label:"WTI crude oil",         code:"067651" },  /* WTI-PHYSICAL */
+  { k:"HO", label:"NY Harbor ULSD",        code:"022651" },  /* NY HARBOR ULSD */
+  { k:"RB", label:"RBOB gasoline",         code:"111659" }   /* GASOLINE RBOB */
 ];
-const COT_MATCH = ["NAT GAS","NATURAL GAS","CRUDE OIL","ULSD","HEATING OIL","GASOLINE","RBOB"];
 
 function stats(a){
   const n=a.length; if(!n) return null;
@@ -2442,7 +2451,7 @@ function cotIndex(series, now){
 async function loadCot(){
   const msg=$("#cotMsg"); msg.innerHTML='<div class="busy">Querying CFTC…</div>';
   try {
-    const where="("+COT_MATCH.map(w=>"contract_market_name like '%"+w+"%'").join(" OR ")+")";
+    const where="cftc_contract_market_code in("+TRADED.map(t=>"'"+t.code+"'").join(",")+")";
     const u="https://publicreporting.cftc.gov/resource/"+$("#cotDs").value+".json?$where="+encodeURIComponent(where)+
       "&$order=report_date_as_yyyy_mm_dd DESC&$limit=15000&_="+Date.now();
     const r=await fetch(u);
@@ -2452,9 +2461,8 @@ async function loadCot(){
     const num=(o,ks)=>{for(const k of ks) if(o[k]!==undefined) return parseFloat(o[k])||0; return 0;};
     const by={};
     j.forEach(x=>{
-      const nm=x.contract_market_name; if(!nm) return;
-      if(!TRADED.some(t=>t.re.test(nm))) return;            /* four contracts only */
-      (by[nm]=by[nm]||[]).push({
+      const t=TRADED.find(tt=>tt.code===String(x.cftc_contract_market_code)); if(!t) return;
+      (by[t.k]=by[t.k]||{name:(x.contract_market_name||x.market_and_exchange_names||t.code), rows:[]}).rows.push({
         d:dparse(String(x.report_date_as_yyyy_mm_dd).slice(0,10)),
         oi:num(x,["open_interest_all"]),
         mmL:num(x,["m_money_positions_long_all","m_money_positions_long"]),
@@ -2470,16 +2478,11 @@ async function loadCot(){
         nrS:num(x,["nonrept_positions_short_all","nonrept_positions_short"])
       });
     });
-    Object.values(by).forEach(a=>a.sort((x,y)=>x.d-y.d));
-    /* keep one series per traded contract — the deepest history wins */
-    const picked={};
-    TRADED.forEach(t=>{
-      const cands=Object.keys(by).filter(n=>t.re.test(n)).sort((a,b)=>by[b].length-by[a].length);
-      if(cands.length) picked[t.k]={name:cands[0], rows:by[cands[0]]};
-    });
+    Object.values(by).forEach(o=>o.rows.sort((x,y)=>x.d-y.d));
+    const picked=by;
     S.cotAll=picked;
     const found=Object.keys(picked);
-    if(!found.length) throw new Error("None of the four contracts matched. CFTC may have renamed them — check the contract names in the raw response.");
+    if(!found.length) throw new Error("None of the four contracts matched. CFTC may have changed the market codes — check cftc_contract_market_code in the raw response.");
     const cur=$("#cotPick").value;
     $("#cotPick").innerHTML=TRADED.filter(t=>picked[t.k]).map(t=>
       '<option value="'+t.k+'"'+(t.k===cur?" selected":"")+'>'+t.label+' — '+picked[t.k].name+'</option>').join("");
@@ -2795,10 +2798,10 @@ function buildDesk(){
   }
 
   const cotFor = k => {
-    if(!S.cotAll) return null;
-    const t = TRADED.find(x=>x.k===k);
-    const nm = Object.keys(S.cotAll).find(n => t.re.test(n));
-    return nm ? Object.assign(cotMetrics(S.cotAll[nm], look)||{}, {name:nm}) : null;
+    const c = S.cotAll && S.cotAll[k];
+    if(!c) return null;
+    const m = cotMetrics(c.rows, look);
+    return m ? Object.assign(m, {name:c.name}) : null;
   };
 
   /* ---------- per-contract component sets ---------- */
@@ -3300,28 +3303,32 @@ function techSeries(k){
   return a.length ? a.map(r => ({ d:r.d, v:r.v })) : null;
 }
 
-function computeTech(a){
+function computeTech(a, maP){
+  const P = (maP && maP.length===3) ? maP : [20,50,200];
   const v = a.map(r=>r.v);
-  const sma20=SMA(v,20), sma50=SMA(v,50), sma200=SMA(v,200);
-  const sd20=STDEV(v,20);
-  const bbU=sma20.map((m,i)=>(m===null||sd20[i]===null)?null:m+2*sd20[i]);
-  const bbL=sma20.map((m,i)=>(m===null||sd20[i]===null)?null:m-2*sd20[i]);
-  const bbW=sma20.map((m,i)=>(m===null||sd20[i]===null||!m)?null:4*sd20[i]/m*100);
+  /* three trend MAs, periods chosen in the panel header */
+  const sma20=SMA(v,P[0]), sma50=SMA(v,P[1]), sma200=SMA(v,P[2]);
+  /* Bollinger stays on a fixed 20-period basis — BB(20,2) is the convention */
+  const bbBasis=SMA(v,20), sd20=STDEV(v,20);
+  const bbU=bbBasis.map((m,i)=>(m===null||sd20[i]===null)?null:m+2*sd20[i]);
+  const bbL=bbBasis.map((m,i)=>(m===null||sd20[i]===null)?null:m-2*sd20[i]);
+  const bbW=bbBasis.map((m,i)=>(m===null||sd20[i]===null||!m)?null:4*sd20[i]/m*100);
   const rsi=RSI(v,14), macd=MACD(v,12,26,9), roc=ROC(v,10), roc21=ROC(v,21), st=STOCH(v,14,3);
   const rv=[]; for(let i=1;i<v.length;i++) if(v[i]>0&&v[i-1]>0) rv.push(Math.log(v[i]/v[i-1]));
   const vol=rv.length>20 ? Math.sqrt(rv.slice(-20).reduce((x,y)=>x+y*y,0)/20*252)*100 : null;
-  return { v, sma20, sma50, sma200, bbU, bbL, bbW, rsi, macd, roc, roc21, st, vol };
+  return { v, maP:P, sma20, sma50, sma200, bbU, bbL, bbW, rsi, macd, roc, roc21, st, vol };
 }
 
 function techSignals(t){
   const i = t.v.length-1, px = t.v[i];
   const out = [];
   const put=(n,val,s,note)=>out.push({n,val,s,note});
-  if(t.sma20[i]!==null) put("Price vs 20-day", fmt((px/t.sma20[i]-1)*100,1)+"%",
-    clamp((px/t.sma20[i]-1)/0.05,-1,1), px>t.sma20[i]?"above short-term mean":"below short-term mean");
+  const [mp0,mp1,mp2] = t.maP || [20,50,200];
+  if(t.sma20[i]!==null) put("Price vs "+mp0+"-day", fmt((px/t.sma20[i]-1)*100,1)+"%",
+    clamp((px/t.sma20[i]-1)/0.05,-1,1), px>t.sma20[i]?"above the fast mean":"below the fast mean");
   if(t.sma50[i]!==null && t.sma200[i]!==null){
     const golden = t.sma50[i] > t.sma200[i];
-    put("50 vs 200-day", golden?"50 above 200":"50 below 200", golden?0.6:-0.6,
+    put(mp1+" vs "+mp2+"-day", golden?(mp1+" above "+mp2):(mp1+" below "+mp2), golden?0.6:-0.6,
       golden?"long-term trend structure is up":"long-term trend structure is down");
   }
   if(t.rsi[i]!==null){
@@ -3367,7 +3374,11 @@ function drawTech(){
       PX_SYM[k].etf+'</b> as a proxy, not '+k+' itself. It rolls front-month futures monthly, so it decays in contango and gains in backwardation. Oscillator shape transfers; long moving-average levels do not.</div>' : "";
 
   const look = parseInt($("#tkLook").value,10);
-  const t = computeTech(a);
+  const maP = [1,2,3].map((n,ix)=>{
+    const raw = parseInt(($("#tkMA"+n)||{}).value,10);
+    return clamp(isFinite(raw)?raw:[20,50,200][ix], 2, 400);
+  });
+  const t = computeTech(a, maP);
   const s0 = Math.max(0, a.length - look), cut = arr => arr.slice(s0);
   const bars = a.slice(s0).map(r => r.bar || { d:r.d, o:r.v, h:r.v, l:r.v, c:r.v, v:null });
   const ohlc = hasOHLC(a.map(r=>r.bar).filter(Boolean));
@@ -3390,9 +3401,9 @@ function drawTech(){
         return '<b style="color:var(--ink)">'+k+'</b> · '+(S.pxSrc[k]||"EIA")+
           (ohlc ? '  O '+$$$(b.o)+'  H '+$$$(b.h)+'  L '+$$$(b.l)+'  <b style="color:'+(b.c>=b.o?"var(--up)":"var(--dn)")+'">C '+$$$(b.c)+'</b>'
                 : '  <b style="color:var(--ink)">'+$$$(b.c)+'</b>')+
-          (on("#tkMA") ? '   <span style="color:#8fa3bd">MA20 '+$$$(t.sma20[j])+'</span>'+
-            '  <span style="color:var(--heat)">MA50 '+$$$(t.sma50[j])+'</span>'+
-            '  <span style="color:#8f7fc0">MA200 '+$$$(t.sma200[j])+'</span>' : '')+
+          (on("#tkMA") ? '   <span style="color:#8fa3bd">MA'+t.maP[0]+' '+$$$(t.sma20[j])+'</span>'+
+            '  <span style="color:var(--heat)">MA'+t.maP[1]+' '+$$$(t.sma50[j])+'</span>'+
+            '  <span style="color:#8f7fc0">MA'+t.maP[2]+' '+$$$(t.sma200[j])+'</span>' : '')+
           (on("#tkBB") ? '   <span style="color:var(--flame)">BB '+$$$(t.bbL[j])+' – '+$$$(t.bbU[j])+'</span>' : ''); } },
     { h:64, on: hasVol && on("#tkVol"), ticks:2, zero:true, fmt:v=>v>=1e6?fmt(v/1e6,0)+"M":fmt(v/1e3,0)+"k",
       bars:[{y:bars.map(b=>b.v), color:(v,i)=>bars[i].c>=bars[i].o?"var(--up)":"var(--dn)", opacity:.5}],
@@ -3892,7 +3903,7 @@ $("#cotDs").addEventListener("change", async () => { await loadCot(); buildDesk(
 $("#cotLook").addEventListener("change", () => { drawCotMatrix(); drawCotDetail(); drawCotCards(); buildDesk(); });
 $("#cotPick").addEventListener("change", drawCotDetail);
 $("#tkPick").addEventListener("change", loadSymbol);
-["#tkCandle","#tkMA","#tkBB","#tkVol","#tkRSI","#tkMACD","#tkMOM"].forEach(id=>$(id).addEventListener("change", drawTech));
+["#tkCandle","#tkMA","#tkMA1","#tkMA2","#tkMA3","#tkBB","#tkVol","#tkRSI","#tkMACD","#tkMOM"].forEach(id=>$(id).addEventListener("change", drawTech));
 $("#opGo").addEventListener("click", () => { (S.localOpt && S.localOpt.chains) ? drawEtfOptions() : loadLocal(false); });
 $("#opTk").addEventListener("change", () => { $("#opExp").value = "all"; drawEtfOptions(); });
 $("#opExp").addEventListener("change", drawEtfOptions);
