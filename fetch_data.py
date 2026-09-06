@@ -24,6 +24,11 @@ try:
 except ImportError:
     sys.exit("pip install yfinance")
 
+try:
+    import urllib.request
+except ImportError:  # pragma: no cover
+    urllib = None
+
 FUTURES = ["NG=F", "CL=F", "HO=F", "RB=F", "BZ=F"]
 ETFS = ["UNG", "BOIL", "KOLD", "USO", "USL", "BNO", "UGA", "XLE", "XOP", "OIH"]
 
@@ -32,6 +37,41 @@ KEY = {"NG=F": "NG", "CL=F": "CL", "HO=F": "HO", "RB=F": "RB", "BZ=F": "BZ"}
 
 OUT = pathlib.Path("data")
 OUT.mkdir(exist_ok=True)
+
+
+STOOQ = {"NG=F": "ng.f", "CL=F": "cl.f", "HO=F": "ho.f", "RB=F": "rb.f", "BZ=F": "cb.f"}
+
+
+def stooq_bars(sym):
+    """Fallback source. Yahoo occasionally throttles cloud IPs; Stooq does not."""
+    s = STOOQ.get(sym) or (sym.lower() + ".us")
+    url = f"https://stooq.com/q/d/l/?s={s}&i=d"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    txt = urllib.request.urlopen(req, timeout=30).read().decode()
+    lines = txt.strip().split("\n")
+    if len(lines) < 30 or not lines[0].lower().startswith("date"):
+        raise RuntimeError("stooq returned no usable rows")
+    out = []
+    for ln in lines[1:]:
+        p = ln.split(",")
+        if len(p) < 5:
+            continue
+        try:
+            o, h, l, c = float(p[1]), float(p[2]), float(p[3]), float(p[4])
+        except ValueError:
+            continue
+        if c <= 0:
+            continue
+        v = None
+        if len(p) > 5:
+            try:
+                v = int(float(p[5]))
+            except ValueError:
+                v = None
+        out.append({"d": p[0], "o": o, "h": h, "l": l, "c": c, "v": v})
+    if not out:
+        raise RuntimeError("stooq parsed 0 rows")
+    return out[-1300:]
 
 
 def bars(sym, period="5y"):
@@ -95,10 +135,14 @@ def main():
         k = KEY.get(sym, sym)
         try:
             prices[k] = bars(sym)
-            print(f"  {k:5s} {len(prices[k]):5d} bars")
+            print(f"  {k:5s} {len(prices[k]):5d} bars  yfinance")
         except Exception as e:
-            failed.append(f"{k}: {e}")
-            print(f"  {k:5s} FAILED — {e}")
+            try:
+                prices[k] = stooq_bars(sym)
+                print(f"  {k:5s} {len(prices[k]):5d} bars  stooq (yfinance: {e})")
+            except Exception as e2:
+                failed.append(f"{k}: yfinance {e}; stooq {e2}")
+                print(f"  {k:5s} FAILED — yfinance {e} · stooq {e2}")
 
     (OUT / "prices.json").write_text(
         json.dumps({"generated": stamp, "failed": failed, "prices": prices},
@@ -122,7 +166,10 @@ def main():
         json.dumps({"generated": stamp, "chains": chains}, separators=(",", ":"))
     )
     print(f"\ndata/options.json — {len(chains)} chains")
-    print("\nNow: python3 -m http.server 8000  and open localhost:8000")
+    if not prices:
+        sys.exit("No price data at all — failing so the Action reports red")
+    print("\nRun locally: python3 -m http.server 8000")
+    print("On GitHub Actions this output is committed to data/ and served by Pages.")
 
 
 if __name__ == "__main__":

@@ -1,78 +1,74 @@
 # Energy Desk
 
-Single-file terminal for natural gas, crude and refined products. Storage and
-inventory fundamentals, gas-weighted degree days, a weather-driven storage
-model, inventory-implied fair value, CFTC positioning, technicals, and a signal
+Terminal for natural gas, crude and refined products. Storage and inventory
+fundamentals, gas-weighted degree days, a weather-driven storage model,
+inventory-implied fair value, CFTC positioning, technicals, and a signal
 scorecard across NG, CL, HO and RB.
 
-Everything runs in the browser. `index.html` has no build step and no
-dependencies.
+Runs entirely on GitHub. Nothing to install and nothing to run locally.
 
-## Data sources
+## How the data gets here
 
-| Source | What it provides | Access |
+| Source | What it provides | How it is reached |
 |---|---|---|
-| EIA Open Data v2 | gas storage, S&D, petroleum stocks, refining, spot and futures, STEO | free key, sends CORS headers |
-| CFTC public reporting | disaggregated Commitments of Traders | no key, sends CORS headers |
-| Open-Meteo | 16-day forecast and ERA5 archive for degree days | no key, sends CORS headers |
-| yfinance (`fetch_data.py`) | ETF and futures OHLCV, ETF option chains | Python, writes local JSON |
+| EIA Open Data v2 | gas storage, S&D, petroleum stocks, refining, spot and futures, STEO | called from the browser, free key |
+| CFTC public reporting | disaggregated Commitments of Traders | called from the browser |
+| Open-Meteo | 16-day forecast and ERA5 archive for degree days | called from the browser |
+| Yahoo, via yfinance | ETF and futures OHLCV, ETF option chains | fetched by GitHub Actions, committed as JSON |
 
-The first three are called directly from the page. Yahoo is not, because it
-sends no `Access-Control-Allow-Origin` header — a browser cannot read its
-response at all. yfinance works because it is Python, where CORS does not
-apply. So the script fetches, writes JSON, and the page reads that file
-same-origin.
+The first three send CORS headers, so the page calls them directly. Yahoo does
+not — a browser cannot read its response at all. That is why yfinance works in
+Python and cannot work in a page. The workflow runs it on a GitHub runner,
+which is a server, and commits the output to `data/`. Pages serves those files
+next to `index.html`, so the page reads them same-origin and CORS never applies.
 
-## Running it
+## Setup, once
 
-```bash
-pip install -r requirements.txt
-python3 fetch_data.py          # writes data/prices.json and data/options.json
-python3 -m http.server 8000
-```
+1. **Actions permissions.** Settings → Actions → General → Workflow
+   permissions → **Read and write permissions** → Save. The workflow commits
+   to the repo, so it needs this.
+2. **Pages.** Settings → Pages → Source *Deploy from a branch* → `main` /
+   `/ (root)` → Save.
+3. **Run it.** Actions tab → **Refresh market data** → **Run workflow**. Takes
+   about a minute.
+4. **EIA key.** Free at <https://www.eia.gov/opendata/register.php>. Paste it
+   into the header on the page and press **Refresh all**. Stored in your
+   browser only, never in the repo.
 
-Open <http://localhost:8000>. On Windows use `python` instead of `python3`.
+After that the workflow runs itself on weekdays at 22:40 UTC, after the US
+settle. Run it by hand any time from the Actions tab.
 
-Get a free EIA key at <https://www.eia.gov/opendata/register.php>, paste it in
-the header, press **Refresh all**. It is stored in your browser only.
-
-Re-run `fetch_data.py` whenever you want fresh prices and option chains.
-
-Opening `index.html` as a file will not work — a `file://` page has a null
-origin and every API rejects it. It has to be served over http.
-
-## Hosting on GitHub Pages
-
-Settings → Pages → deploy from `main`, root folder.
-
-The EIA, CFTC and weather panels work on Pages as they are. The price and
-options panels need `data/*.json` present, and `.gitignore` excludes those by
-default. Two choices:
-
-- **Commit the data.** Remove the two `data/*.json` lines from `.gitignore`,
-  run the script, commit the output. Refreshes when you re-run and push.
-- **Keep prices local.** Leave it as is and use Pages for the fundamentals,
-  running locally when you want the charts and chains.
-
-A scheduled Action could run the script for you, but it is deliberately not
-included — add one only if you want that.
-
-## Layout
+## Files
 
 ```
-index.html        the terminal, one file
-fetch_data.py     yfinance fetcher
-data/             JSON output, created by the script
+index.html                       the terminal
+fetch_data.py                    yfinance fetcher, run by the workflow
+.github/workflows/data.yml       schedule and commit step
+data/prices.json                 written by the workflow
+data/options.json                written by the workflow
 ```
+
+## If something is empty
+
+- **Everything blank, tabs dead** — a script error. The page paints a red bar
+  at the bottom with the message and line number.
+- **Price or options panels empty** — the workflow has not run yet, or it
+  failed. Check the Actions tab; a failed run shows which symbols did not come
+  back.
+- **A fundamentals panel empty** — the Data tab lists every EIA series, the
+  route it resolved to and the row count, and lets you pin a corrected ID.
+- **Yahoo throttles the runner** — it sometimes does with cloud IPs. The script
+  falls back to Stooq for prices automatically. Option chains have no fallback,
+  so they may be missing from a run where that happens.
 
 ## Notes
 
-- Series IDs are not hard-coded. The page reads EIA's facet catalogue on each
-  refresh and resolves every panel to a live series, so a renamed series heals
-  itself. The Data tab shows what resolved to what and lets you pin overrides.
+- Series IDs are not hard-coded. The page reads EIA's facet catalogue on every
+  refresh and resolves each panel to a live series, so a renamed series heals
+  itself.
 - The signal scorecard is a rules engine over your own data, not advice. Every
-  component shows its raw input so you can see what drives the score.
-- ETFs roll front-month futures monthly, so they decay against the contract in
-  contango. Where an ETF stands in for a contract, the page measures the
-  correlation and cumulative drift against the EIA front contract and says so.
+  component shows its raw input.
+- ETFs roll front-month futures monthly and decay against the contract in
+  contango. Where one stands in for a contract, the page measures correlation
+  and cumulative drift against the EIA front contract and says so.
 - Yahoo carries option chains for the ETFs, not for the futures contracts.

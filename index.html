@@ -191,7 +191,7 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
   <div class="note">EIA fundamentals, CFTC positioning and Open-Meteo weather, all client-side. Nothing is fetched from a server you have to run.</div>
   <ol>
     <li>Free key at <a href="https://www.eia.gov/opendata/register.php" target="_blank" rel="noopener">eia.gov/opendata/register.php</a>, paste it above, press <b>Refresh all</b>.</li>
-    <li>Serve the file over http — <span class="num">python3 -m http.server 8000</span> or GitHub Pages. Opening it as a file blocks every API call.</li>
+    <li>It must be served over http. GitHub Pages does that; opening the file directly blocks every API call.</li>
     <li>Every refresh re-pulls all three sources and re-runs the models. The Desk tab rebuilds itself from whatever loaded.</li>
   </ol>
 </div>
@@ -570,7 +570,7 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
       <span class="sub">who your browser can actually reach</span>
       <span class="right">
         <select id="pxSrc" class="btn sm" style="padding:4px 8px">
-          <option value="local" selected>Local file from yfinance</option>
+          <option value="local" selected>Repo data from Actions</option>
           <option value="auto">Auto — try each in turn</option>
           <option value="yahoo">Yahoo direct</option>
           <option value="stooq">Stooq direct</option>
@@ -583,12 +583,8 @@ tfoot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:600}
     <div class="body">
       <div id="pxMsg"><div class="note">Press <b>Load</b>.</div></div>
       <div class="note" style="margin-top:12px;border-left:2px solid var(--flame);padding-left:10px">
-        <b>The reliable path is yfinance, run outside the browser.</b> There is no browser build of it — the library is Python, and a page cannot read Yahoo's response at all because Yahoo sends no CORS header. Your stocks repo works for exactly this reason: Python fetched the data, not a browser.<br><br>
-        Put <span class="num">fetch_data.py</span> beside this file and run:<br>
-        <span class="num">pip install yfinance</span><br>
-        <span class="num">python3 fetch_data.py</span><br>
-        <span class="num">python3 -m http.server 8000</span><br>
-        then open <span class="num">localhost:8000</span>. It writes <span class="num">data/prices.json</span> and <span class="num">data/options.json</span>, which this page reads same-origin — CORS never enters into it. Re-run the script whenever you want fresh data.
+        <b>Prices and option chains come from GitHub Actions.</b> There is no browser build of yfinance — the library is Python, and a page cannot read Yahoo's response at all because Yahoo sends no CORS header. The workflow runs <span class="num">fetch_data.py</span> on a GitHub runner, which is a server and has no such restriction, and commits <span class="num">data/prices.json</span> and <span class="num">data/options.json</span>. Pages serves those alongside this file, so the page reads them same-origin and CORS never enters into it.<br><br>
+        It runs on weekdays after the US settle. To refresh on demand, open the repo Actions tab, pick <b>Refresh market data</b>, and press <b>Run workflow</b>. Give it a minute, then reload this page.
       </div>
       <div class="row" style="margin-top:12px">
         <input type="text" id="avKey" style="width:200px;background:var(--bg2);border:1px solid var(--line2);color:var(--ink);padding:5px 8px;border-radius:3px;font-family:var(--mono);font-size:12px" placeholder="Alpha Vantage key (optional)">
@@ -971,7 +967,7 @@ async function getText(url){
   return await r.text();
 }
 const netErr = e => /Failed to fetch|NetworkError|Load failed/i.test(e.message)
-  ? "blocked by CORS — run fetch_data.py and serve the folder" : e.message;
+  ? "blocked by CORS — expected; the repo data file is the working path" : e.message;
 
 /* ---------- local files written by fetch_data.py ---------- */
 async function loadLocal(quiet){
@@ -983,7 +979,7 @@ async function loadLocal(quiet){
     S.local = j;
     Object.keys(j.prices || {}).forEach(k => {
       S.px[k] = j.prices[k].map(b => ({ d:dparse(b.d), o:b.o, h:b.h, l:b.l, c:b.c, v:b.v }));
-      S.pxSrc[k] = "yfinance, local file";
+      S.pxSrc[k] = "yfinance via Actions";
       S.pxIsEtf[k] = !["NG","CL","HO","RB","BZ"].includes(k);
     });
     okP = true;
@@ -1000,7 +996,7 @@ async function loadLocal(quiet){
 
   if(!quiet) msg.innerHTML = (okP||okO ? '<div class="ok">Loaded local data.</div>' : '<div class="err">No local files yet.</div>') +
     '<div class="note" style="margin-top:8px">'+note.join("<br>")+'</div>' +
-    (okP ? '' : '<div class="note" style="margin-top:10px">Run <span class="num">python3 fetch_data.py</span> in this folder, then <span class="num">python3 -m http.server 8000</span> and open <span class="num">localhost:8000</span>. The page reads the JSON same-origin, so CORS never enters into it.</div>');
+    (okP ? '' : '<div class="note" style="margin-top:10px">Run the <b>Refresh market data</b> workflow from the repo Actions tab, then reload this page. It reads the committed JSON same-origin, so CORS never enters into it.</div>');
   if(okP) drawTech();
   if(okO) drawEtfOptions();
   return okP;
@@ -3517,7 +3513,7 @@ async function alphaBars(tk, key){
 }
 async function fetchAnyEquity(tk){
   if(S.local && S.local.prices && S.local.prices[tk])
-    return { rows:S.local.prices[tk].map(b=>({d:dparse(b.d),o:b.o,h:b.h,l:b.l,c:b.c,v:b.v})), src:"yfinance, local file" };
+    return { rows:S.local.prices[tk].map(b=>({d:dparse(b.d),o:b.o,h:b.h,l:b.l,c:b.c,v:b.v})), src:"yfinance via Actions" };
   const errs = [];
   const key = ($("#avKey").value||"").trim();
   for(const at of [
@@ -3528,7 +3524,7 @@ async function fetchAnyEquity(tk){
     try { const r = await at.fn(); if(r && r.length) return { rows:r, src:at.n }; }
     catch(e){ errs.push(at.n+": "+netErr(e)); }
   }
-  throw new Error(errs.join(" · ") + " — run fetch_data.py for a local copy that always works");
+  throw new Error(errs.join(" · ") + " — run the Refresh market data workflow in the repo Actions tab");
 }
 
 function fromEia(k){
@@ -3624,7 +3620,7 @@ function hasOHLC(bars){
 function drawEtfOptions(){
   const msg = $("#opMsg");
   if(!S.localOpt || !S.localOpt.chains){
-    msg.innerHTML = '<div class="note">No option data loaded. Run <span class="num">python3 fetch_data.py</span> — it pulls every ETF chain through yfinance and writes <span class="num">data/options.json</span> with strike, open interest, volume and implied vol. Yahoo carries no chain for the futures contracts themselves, only the ETFs.</div>';
+    msg.innerHTML = '<div class="note">No option data loaded. Open the repo Actions tab and run <b>Refresh market data</b>. It pulls every ETF chain through yfinance and commits <span class="num">data/options.json</span> with strike, open interest, volume and implied vol. Yahoo carries no chain for the futures contracts themselves, only the ETFs.</div>';
     return;
   }
   const tk = $("#opTk").value;
