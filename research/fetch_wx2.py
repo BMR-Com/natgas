@@ -160,7 +160,22 @@ for idx, page in [("ao", f"{CPC}/daily_ao_index/ao.shtml"), ("nao", f"{CPC}/pna/
             txt = get(u, as_json=False, tries=1, timeout=60)
             if txt and len(txt) > 200:
                 lines = [l for l in txt.strip().splitlines() if l.strip()]
-                rec[kind] = {"url": u, "tail": lines[-140:] if kind == "obs" else lines[:400]}
+                if kind == "obs":
+                    rec[kind] = {"url": u, "tail": lines[-140:]}
+                else:  # lead,member,time,<idx>_index,valid_time -> latest init, per valid day: mean/min/max over members
+                    hdr = lines[0].split(","); rows = [dict(zip(hdr, l.split(","))) for l in lines[1:]]
+                    rows = [r for r in rows if len(r) == len(hdr)]
+                    vk = [h for h in hdr if h.endswith("_index")][0]
+                    init = max(r["time"] for r in rows if "time" in r)
+                    agg = {}
+                    for r in rows:
+                        if r["time"] == init:
+                            try:
+                                agg.setdefault(r["valid_time"], []).append(float(r[vk]))
+                            except ValueError:
+                                pass
+                    rec[kind] = {"url": u, "init": init, "days": {d: {"mean": round(sum(v) / len(v), 2), "min": round(min(v), 2), "max": round(max(v), 2), "n": len(v)}
+                                                                 for d, v in sorted(agg.items())}}
                 log["ok"].append(["tele", idx, kind, u]); break
     tele[idx] = rec
 json.dump({"generated": dt.datetime.utcnow().isoformat(timespec="minutes"), "u10_60N_ms": vort,
