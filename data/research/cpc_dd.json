@@ -1,0 +1,27 @@
+{
+"heating_weekly": {
+"url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/cdus/degree_days/hfstwpws.txt",
+"head": [
+" ",
+"              HEATING DEGREE DAY DATA WEEKLY FORECAST",
+"     POPULATION-WEIGHTED STATE,REGIONAL,AND NATIONAL AVERAGES",
+"              CLIMATE PREDICTION CENTER-NCEP-NWS-NOAA",
+" ",
+"             LAST DATE OF FORECAST WEEK IS NOV  7, 2026",
+"      LAST DATE OF OBSERVED WEEKLY LAST YR IS NOV  7, 2025",
+"   SEASONAL ACCUMULATIONS ARE FROM JUL  1, 2026 TO OCT 31, 2026",
+"         -999 = NORMAL LESS THAN 100 OR RATIO INCALCULABLE",
+" ",
+"   STATE         FCST  FCST FCST   ****  OBSERVED SEASONAL  ****",
+"                 WEEK  WEEK WEEK   ****    ACCUMULATIONS    ****",
+"                 TOTAL DEV  DEV     TOTAL DEV   DEV   DEV   DEV",
+"                       FROM FROM          FROM  FROM  FROM  FROM"
+],
+"us": [
+" UNITED STATES      50  -51  -39     252  -131   -34   -34   -12",
+" UNITED STATES      53  -58  -43     268  -156   -43   -37   -14",
+" UNITED STATES      64  -68  -62     421  -133   -11   -24    -3",
+" UNITED STATES      43  -33  -26     181   -91   -24   -33   -12"
+]
+}
+}

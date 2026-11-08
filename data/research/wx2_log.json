@@ -1,0 +1,83 @@
+{
+ "ok": [
+  [
+   "members",
+   "gfs025",
+   31
+  ],
+  [
+   "members",
+   "ecmwf_ifs025",
+   51
+  ],
+  [
+   "members",
+   "ecmwf_aifs025",
+   51
+  ],
+  [
+   "vortex",
+   "gfs_seamless",
+   26
+  ],
+  [
+   "vortex",
+   "ecmwf_ifs025",
+   26
+  ],
+  [
+   "tele",
+   "ao",
+   "obs",
+   "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.ao.cdas.z1000.19500101_current.csv"
+  ],
+  [
+   "tele",
+   "ao",
+   "gefs",
+   "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.ao.gefs.z1000.120days.csv"
+  ],
+  [
+   "tele",
+   "nao",
+   "obs",
+   "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.cdas.z500.19500101_current.csv"
+  ],
+  [
+   "tele",
+   "nao",
+   "gefs",
+   "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.gefs.z500.120days.csv"
+  ],
+  [
+   "tele",
+   "pna",
+   "obs",
+   "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.pna.cdas.z500.19500101_current.csv"
+  ],
+  [
+   "tele",
+   "pna",
+   "gefs",
+   "https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.pna.gefs.z500.120days.csv"
+  ],
+  [
+   "snow",
+   11
+  ],
+  [
+   "cpc dd",
+   "heating_weekly"
+  ]
+ ],
+ "fail": [
+  [
+   "https://ensemble-api.open-meteo.com/v1/ensemble",
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://ensemble-api.open-meteo.com/v1/ensemble",
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ]
+ ]
+}
