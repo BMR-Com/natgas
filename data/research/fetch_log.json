@@ -1,0 +1,31 @@
+{
+ "http": [
+  [
+   "https://archive-api.open-meteo.com/v1/archive",
+   429,
+   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
+  ]
+ ],
+ "err": [
+  [
+   "https://archive-api.open-meteo.com/v1/archive",
+   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://archive-api.open-meteo.com/v1/archive",
+   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ]
+ ]
+}
