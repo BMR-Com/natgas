@@ -5,7 +5,10 @@ on:
     branches: [main]
     paths: ['research/fetch_wx2.py', '.github/workflows/wx2.yml']
   schedule:
-    - cron: '47 0 * * *'
+    - cron: '47 0 * * *'     # 12z runs of the previous day
+    - cron: '17 9 * * *'     # 00z ensembles
+    - cron: '23 15 * * *'    # 06z GFS/GEFS, before the US midday
+    - cron: '41 21 * * *'    # 12z runs
 permissions: {contents: write}
 concurrency: {group: ng-research, cancel-in-progress: false}
 jobs:
