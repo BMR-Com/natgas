@@ -4,8 +4,8 @@ Why: the 15-day ensembles (fetch_wx2.py) stop around day 14-15. Cold-risk calls 
 in days 15-35, and the market trades that horizon well before the 15-day models show it. This file adds:
 
   GEFS 35-day ensemble (Open-Meteo model gfs05, 31 members)            -> per-member weekly HDD anomalies, weeks 1-5
-  ECMWF extended-range ensemble (EC46), if Open-Meteo serves it          -> same, up to 46 days
-  CFSv2 (Open-Meteo seasonal API), if reachable                          -> weekly anomalies, weeks 1-6
+  ECMWF extended-range ensemble (EC46, Open-Meteo ecmwf_ec46)           -> same, 36 days
+  ECMWF SEAS5 (Open-Meteo seasonal API default, 51 members)             -> weekly anomalies, weeks 1-6
 
 Writes data/research/hdd_ext.json and data/research/hdd_ext_log.json. Runs after fetch_wx2.py on GitHub Actions;
 a failure here never touches the other weather files. Same 21 metros, weights and 10-yr normal as fetch_wx2.py.
@@ -108,8 +108,7 @@ def weekly(members):
 
 ext = {}
 # 1) GEFS 35-day and ECMWF extended via the ensemble API (daily mean temperature per member)
-for name, model, days in [("GEFS 35-day", "gfs05", 35), ("ECMWF extended (EC46)", "ecmwf_ifs_ec46", 46),
-                          ("ECMWF extended (EC46)", "ecmwf_ec46", 46), ("ECMWF extended (EC46)", "ecmwf_ifs025_ensemble_extended", 46)]:
+for name, model, days in [("GEFS 35-day", "gfs05", 35), ("ECMWF extended (EC46)", "ecmwf_ec46", 36)]  # Open-Meteo caps EC46 at 36 days:
     if name in ext:
         continue
     js = get("https://ensemble-api.open-meteo.com/v1/ensemble", {"latitude": LAT, "longitude": LON, "daily": "temperature_2m_mean",
@@ -124,8 +123,8 @@ for name, model, days in [("GEFS 35-day", "gfs05", 35), ("ECMWF extended (EC46)"
         log["ok"].append([name, model, len(m), len(wk)])
     time.sleep(15)
 
-# 2) CFSv2 through the seasonal API (members, min/max -> mean)
-for model in ["cfsv2", None]:
+# 2) seasonal API default model (51 members = ECMWF SEAS5; Open-Meteo rejects "cfsv2" as a model name)
+for model in [None]:
     p = {"latitude": LAT, "longitude": LON, "daily": "temperature_2m_max,temperature_2m_min", "temperature_unit": "fahrenheit",
          "timezone": "America/New_York", "forecast_days": 45}
     if model:
@@ -136,8 +135,8 @@ for model in ["cfsv2", None]:
     m = member_daily(js, prefer=("temperature_2m_mean",))
     wk = weekly(m)
     if wk:
-        ext["CFSv2"] = {"model": model or "default", "members": len(m), "weeks": wk}
-        log["ok"].append(["CFSv2", model, len(m), len(wk)]); break
+        ext["ECMWF seasonal (SEAS5)"] = {"model": "open-meteo seasonal default", "members": len(m), "weeks": wk}
+        log["ok"].append(["seasonal", model, len(m), len(wk)]); break
 
 json.dump({"generated": dt.datetime.utcnow().isoformat(timespec="minutes"), "base_f": 65,
            "normal": "2016-2025 daily mean, 7-day smoothed; anomalies are weekly totals (HDD), + = colder than normal",
