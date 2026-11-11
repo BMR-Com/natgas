@@ -108,7 +108,7 @@ def weekly(members):
 
 ext = {}
 # 1) GEFS 35-day and ECMWF extended via the ensemble API (daily mean temperature per member)
-for name, model, days in [("GEFS 35-day", "gfs05", 35), ("ECMWF extended (EC46)", "ecmwf_ec46", 36)]  # Open-Meteo caps EC46 at 36 days:
+for name, model, days in [("GEFS 35-day", "gfs05", 35), ("ECMWF extended (EC46)", "ecmwf_ec46", 36)]:  # Open-Meteo caps EC46 at 36 days
     if name in ext:
         continue
     js = get("https://ensemble-api.open-meteo.com/v1/ensemble", {"latitude": LAT, "longitude": LON, "daily": "temperature_2m_mean",
