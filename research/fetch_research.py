@@ -129,7 +129,7 @@ print("verify", {m: {k: len(v) for k, v in d.items()} for m, d in ver.items()})
 # 4) NOAA CPC prognostic discussions
 cpc = {}
 for nm, u in [("6-10/8-14 day", "https://www.cpc.ncep.noaa.gov/products/predictions/610day/fxus06.html"),
-              ("week 3-4", "https://www.cpc.ncep.noaa.gov/products/predictions/WK34/texts/sfmd.html"),
+              ("week 3-4", "https://www.cpc.ncep.noaa.gov/products/predictions/WK34/texts/week34fcst.txt"),  # was texts/sfmd.html (404)
               ("30-day (Dec)", "https://www.cpc.ncep.noaa.gov/products/predictions/30day/fxus07.html"),
               ("90-day", "https://www.cpc.ncep.noaa.gov/products/predictions/90day/fxus05.html")]:
     try:

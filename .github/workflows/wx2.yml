@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
   push:
     branches: [main]
-    paths: ['research/fetch_wx2.py', '.github/workflows/wx2.yml']
+    paths: ['research/fetch_wx2.py', 'research/fetch_ext.py', '.github/workflows/wx2.yml']
   schedule:
     - cron: '47 0 * * *'     # 12z runs of the previous day
     - cron: '17 9 * * *'     # 00z ensembles
@@ -20,6 +20,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
       - run: pip install -q requests && python research/fetch_wx2.py
+      - run: python research/fetch_ext.py || echo "extended-range partial"   # weeks 1-5 (GEFS 35d, EC46, CFSv2); isolated
       - run: |
           git config user.name "bmr-data-bot"; git config user.email "bot@users.noreply.github.com"
           git add data/research; git diff --cached --quiet && exit 0
