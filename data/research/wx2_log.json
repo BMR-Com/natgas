@@ -74,6 +74,10 @@
   [
    "https://ensemble-api.open-meteo.com/v1/ensemble",
    "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://api.open-meteo.com/v1/forecast",
+   "HTTPSConnectionPool(host='api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ]
  ]
 }
