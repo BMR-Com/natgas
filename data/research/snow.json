@@ -1,48 +1,48 @@
 {
-"generated": "2026-11-13T21:32",
+"generated": "2026-11-14T01:50",
 "source": "NOAA NOHRSC National Snow Analysis, Lower 48",
 "by_date": {
-"2026-11-13": {
+"2026-11-14": {
 "cover_pct": 2.7,
 "avg_depth_in": null
 },
-"2025-11-13": {
-"cover_pct": 3.3,
+"2025-11-14": {
+"cover_pct": 2.9,
 "avg_depth_in": null
 },
-"2024-11-13": {
-"cover_pct": 9.4,
+"2024-11-14": {
+"cover_pct": 8.1,
 "avg_depth_in": null
 },
-"2023-11-13": {
-"cover_pct": 3.7,
+"2023-11-14": {
+"cover_pct": 3.1,
 "avg_depth_in": null
 },
-"2022-11-13": {
-"cover_pct": 27.9,
+"2022-11-14": {
+"cover_pct": 28.7,
 "avg_depth_in": null
 },
-"2021-11-13": {
-"cover_pct": 10.3,
+"2021-11-14": {
+"cover_pct": 11.4,
 "avg_depth_in": null
 },
-"2020-11-13": {
-"cover_pct": 22.4,
+"2020-11-14": {
+"cover_pct": 18.8,
 "avg_depth_in": null
 },
-"2019-11-13": {
-"cover_pct": 29.6,
+"2019-11-14": {
+"cover_pct": 26.5,
 "avg_depth_in": null
 },
-"2018-11-13": {
-"cover_pct": 29.4,
+"2018-11-14": {
+"cover_pct": 27.6,
 "avg_depth_in": null
 },
-"2017-11-13": {
-"cover_pct": 16.5,
+"2017-11-14": {
+"cover_pct": 13.1,
 "avg_depth_in": null
 },
-"2016-11-13": {
+"2016-11-14": {
 "cover_pct": 0.3,
 "avg_depth_in": null
 }

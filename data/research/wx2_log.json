@@ -23,7 +23,7 @@
   [
    "vortex",
    "ecmwf_ifs025",
-   26
+   25
   ],
   [
    "tele",
@@ -70,10 +70,5 @@
    "heating_weekly"
   ]
  ],
- "fail": [
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
-  ]
- ]
+ "fail": []
 }
