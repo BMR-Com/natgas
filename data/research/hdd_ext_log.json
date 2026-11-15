@@ -19,5 +19,11 @@
    6
   ]
  ],
- "fail": []
+ "fail": [
+  [
+   "https://ensemble-api.open-meteo.com/v1/ensemble",
+   "ecmwf_ec46",
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=240)"
+  ]
+ ]
 }
