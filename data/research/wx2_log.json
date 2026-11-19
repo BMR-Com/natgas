@@ -16,6 +16,16 @@
    51
   ],
   [
+   "vortex",
+   "gfs_seamless",
+   26
+  ],
+  [
+   "vortex",
+   "ecmwf_ifs025",
+   26
+  ],
+  [
    "tele",
    "ao",
    "obs",
@@ -62,34 +72,16 @@
  ],
  "fail": [
   [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
+   "https://ensemble-api.open-meteo.com/v1/ensemble",
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://ensemble-api.open-meteo.com/v1/ensemble",
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ],
   [
    "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
+   "HTTPSConnectionPool(host='api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ]
  ]
 }
