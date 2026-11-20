@@ -1,94 +1,28 @@
 {
- "http": [
+ "err": [
   [
    "https://archive-api.open-meteo.com/v1/archive",
-   429,
-   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
-  ],
-  [
-   "https://archive-api.open-meteo.com/v1/archive",
-   429,
-   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
+   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ],
   [
    "https://archive-api.open-meteo.com/v1/archive",
-   429,
-   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
+   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ],
   [
    "https://archive-api.open-meteo.com/v1/archive",
-   429,
-   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
-  ],
-  [
-   "https://archive-api.open-meteo.com/v1/archive",
-   429,
-   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
-  ],
-  [
-   "https://api.open-meteo.com/v1/forecast",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
+   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ],
   [
    "https://previous-runs-api.open-meteo.com/v1/forecast",
-   429,
-   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
+   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ]
  ]
 }
