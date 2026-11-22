@@ -1,6 +1,21 @@
 {
  "ok": [
   [
+   "members",
+   "gfs025",
+   31
+  ],
+  [
+   "members",
+   "ecmwf_ifs025",
+   51
+  ],
+  [
+   "members",
+   "ecmwf_aifs025",
+   51
+  ],
+  [
    "vortex",
    "gfs_seamless",
    26
@@ -8,7 +23,7 @@
   [
    "vortex",
    "ecmwf_ifs025",
-   25
+   26
   ],
   [
    "tele",
@@ -58,63 +73,11 @@
  "fail": [
   [
    "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ],
   [
    "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"error\":true,\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\"}"
-  ],
-  [
-   "https://ensemble-api.open-meteo.com/v1/ensemble",
-   429,
-   "{\"reason\":\"Daily API request limit exceeded. Please try again tomorrow.\",\"error\":true}"
+   "HTTPSConnectionPool(host='ensemble-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
   ]
  ]
 }
