@@ -1,28 +1,49 @@
 {
- "err": [
+ "http": [
   [
    "https://archive-api.open-meteo.com/v1/archive",
-   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
-  ],
-  [
-   "https://archive-api.open-meteo.com/v1/archive",
-   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+   429,
+   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
   ],
   [
    "https://archive-api.open-meteo.com/v1/archive",
-   "HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+   429,
+   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
   ],
   [
-   "https://api.open-meteo.com/v1/forecast",
-   "HTTPSConnectionPool(host='api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+   "https://archive-api.open-meteo.com/v1/archive",
+   429,
+   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
   ],
   [
-   "https://api.open-meteo.com/v1/forecast",
-   "HTTPSConnectionPool(host='api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+   "https://archive-api.open-meteo.com/v1/archive",
+   429,
+   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
+  ],
+  [
+   "https://archive-api.open-meteo.com/v1/archive",
+   429,
+   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
   ],
   [
    "https://previous-runs-api.open-meteo.com/v1/forecast",
-   "HTTPSConnectionPool(host='previous-runs-api.open-meteo.com', port=443): Read timed out. (read timeout=180)"
+   429,
+   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   429,
+   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   429,
+   "{\"error\":true,\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\"}"
+  ],
+  [
+   "https://previous-runs-api.open-meteo.com/v1/forecast",
+   429,
+   "{\"reason\":\"Minutely API request limit exceeded. Please try again in one minute.\",\"error\":true}"
   ]
  ]
 }
