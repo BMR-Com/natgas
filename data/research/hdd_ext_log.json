@@ -19,5 +19,11 @@
    6
   ]
  ],
- "fail": []
+ "fail": [
+  [
+   "https://seasonal-api.open-meteo.com/v1/seasonal",
+   null,
+   "HTTPSConnectionPool(host='seasonal-api.open-meteo.com', port=443): Read timed out. (read timeout=240)"
+  ]
+ ]
 }
